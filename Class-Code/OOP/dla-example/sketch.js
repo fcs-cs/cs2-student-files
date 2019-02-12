@@ -7,6 +7,7 @@ Limited Aggregation Model using p5.js and
 a walker class */
 
 let walkers = [];
+let static = [];
 
 function setup() {
     createCanvas(600, 400);
@@ -25,14 +26,27 @@ function setup() {
 function draw() {
     background(220);
 
-    for (let i = 0; i < walkers.length; i++) {
-        walkers[i].move();
-        walkers[i].show();
-
-        for(let j = i +1; j < walkers.length; j++){
-            walkers[i].checkCollision(walkers[j])
+    for (let w of walkers) {
+        for(s of static){
+            w.checkCollision(s)
         }
     }
+
+    let newStatic = walkers.filter((w)=>w.static);
+    walkers = filter((w) => !w.static)
+
+    for(let w of newStatic){
+        static.push(w);
+    }
+
+    static.forEach((s)=>s.show());
+
+    walkers.forEach((w) => {
+        w.show();
+        w.move();
+    });
+
+
 }
 
 class Walker {
