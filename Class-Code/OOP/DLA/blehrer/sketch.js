@@ -79,5 +79,5 @@ function draw() {
     for(let i = 0; i < walkers; ++i){
         freeWalkers[i] = stillFreeWalkers[i] ? stillFreeWalkers[i] : new Walker(random(0, width), random(0, height));
     }
-    noLoop();
+    //noLoop();
 }
