@@ -8,7 +8,7 @@ class Walker {
     constructor(_x, _y) {
         this.x = _x;
         this.y = _y;
-        this.r = 2;
+        this.r = 1;
         this.angle = random(0, 2 * PI);
         this.color = 0;
         this.attached = false;
@@ -39,14 +39,14 @@ let attachedWalkers = [];
 
 let freeWalkers = [];
 
-const walkers = 100;
+const walkers = 500;
 
 function setup() {
     createCanvas(400, 400);
 
-    frameRate(10);
-
     noStroke();
+
+    ellipseMode(RADIUS);
 
     attachedWalkers[0] = new Walker(width / 2, height / 2);
     attachedWalkers[0].attached = true;
@@ -67,17 +67,23 @@ function draw() {
         for (let j = 0; j < attachedWalkers.length; ++j) {
             if (freeWalkers[i].collide(attachedWalkers[j])) {
                 newAttachedWalkers.push(freeWalkers[i]);
-                continue;
+                break;
             }
-            stillFreeWalkers.push(freeWalkers[i]);
         }
+        stillFreeWalkers.push(freeWalkers[i]);
     }
-    for(let i = 0; i < attachedWalkers.length; ++i){
+    for (let i = 0; i < attachedWalkers.length; ++i) {
         attachedWalkers[i].show();
     }
-    attachedWalkers.push(newAttachedWalkers);
-    for(let i = 0; i < walkers; ++i){
+    for (let i = 0; i < newAttachedWalkers.length; ++i) {
+        for (let j = 0; j < attachedWalkers.length; ++j) {
+            attachedWalkers[j].r += 0.01;
+        }
+    }
+    for (let i = 0; i < newAttachedWalkers.length; ++i) {
+        attachedWalkers.push(newAttachedWalkers[i]);
+    }
+    for (let i = 0; i < walkers; ++i) {
         freeWalkers[i] = stillFreeWalkers[i] ? stillFreeWalkers[i] : new Walker(random(0, width), random(0, height));
     }
-    //noLoop();
 }
