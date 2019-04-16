@@ -9,51 +9,11 @@ a walker class */
 let walkers = [];
 let static = [];
 
-function setup() {
-    createCanvas(600, 400);
-
-    for (let i = 0; i < 50; i++) {
-        walkers.push(new Walker(
-            random(width), random(height)
-        ));
-    }
-
-    let seed = new Walker(width / 2, height / 2);
-    seed.static = true;
-    walkers.push(seed);
-}
-
-function draw() {
-    background(220);
-
-    for (let w of walkers) {
-        for(s of static){
-            w.checkCollision(s)
-        }
-    }
-
-    let newStatic = walkers.filter((w)=>w.static);
-    walkers = filter((w) => !w.static)
-
-    for(let w of newStatic){
-        static.push(w);
-    }
-
-    static.forEach((s)=>s.show());
-
-    walkers.forEach((w) => {
-        w.show();
-        w.move();
-    });
-
-
-}
-
 class Walker {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.r = 10;
+        this.r = 2;
         this.static = false;
     }
 
@@ -74,8 +34,9 @@ class Walker {
         if (this.static) {
             fill(0);
         } else {
-            fill(200);
+            fill(100);
         }
+        noStroke();
         ellipse(this.x, this.y, this.r)
     }
 
@@ -83,15 +44,54 @@ class Walker {
         let d = dist(this.x, this.y, other.x, other.y);
         let sumOfRadii = this.r + other.r;
 
-        let collision = d <= sumOfRadii;
-
-        if (collision){
-            // console.log("collision")
-            this.static = true;
-            other.static = true;
-        }
-
-
+        if (d <= sumOfRadii) this.static = true;
     }
 
+}
+
+function setup() {
+    createCanvas(600, 400);
+
+    for (let i = 0; i < 500; i++) {
+        walkers.push(new Walker(
+            random(width), random(height)
+        ));
+    }
+
+    let seed = new Walker(width / 2, height / 2);
+    seed.static = true;
+    static.push(seed);
+}
+
+function draw() {
+    background(220);
+
+    for (let i = 0; i < 10; i++) {
+        for (let w of walkers) {
+            for (s of static) {
+                w.checkCollision(s)
+            }
+        }
+
+        let newStatic = walkers.filter(filterStatic);
+        walkers = walkers.filter(filterNotStatic);
+
+        for (let w of newStatic) {
+            static.push(w);
+        }
+    }
+    static.forEach((s) => s.show());
+
+    walkers.forEach((w) => {
+        w.show();
+        w.move();
+    });
+}
+
+function filterStatic(walker) {
+    return walker.static
+}
+
+function filterNotStatic(walker) {
+    return !walker.static
 }
