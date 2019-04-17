@@ -52,7 +52,7 @@ let attachedWalkers = [];
 
 let freeWalkers = [];
 
-const walkers = 1000;
+const walkers = 500;
 
 function setup() {
     createCanvas(400, 400);
@@ -87,9 +87,9 @@ function draw() {
     let newAttachedWalkers = freeWalkers.filter((b) => b.attached);
     for (let i = 0; i < newAttachedWalkers.length; ++i) {
         attachedWalkers.push(newAttachedWalkers[i]);
-        for (let j = 0; j < attachedWalkers.length; ++j) {
-            attachedWalkers[j].r += 0.5 / attachedWalkers.length;
-        }
+        // for (let j = 0; j < attachedWalkers.length; ++j) {
+        //     attachedWalkers[j].r += 0.5 / attachedWalkers.length;
+        // }
     }
     for (let i = 0; i < attachedWalkers.length; ++i) {
         attachedWalkers[i].show();
