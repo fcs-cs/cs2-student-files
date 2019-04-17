@@ -24,10 +24,23 @@ class Walker {
         if (walker.attached == false || this.attached) return false;
         if (dist(this.x, this.y, walker.x, walker.y) < this.r + walker.r) {
             this.attached = true;
-            this.color = [255, 0, 0];
+            let hue = map(dist(this.x, this.y, width / 2, height / 2), 0, sqrt(pow(width / 2, 2) + pow(height / 2, 2)), 0, 360);
+            this.color = [hue, 100, 100];
             return true;
         }
         return false;
+    }
+    boundary() {
+        if (this.x < 0) {
+            this.x = 0;
+        } else if (this.x > width) {
+            this.x = width;
+        }
+        if (this.y < 0) {
+            this.y = 0;
+        } else if (this.y > height) {
+            this.y = height;
+        }
     }
     show() {
         fill(this.color);
@@ -39,7 +52,7 @@ let attachedWalkers = [];
 
 let freeWalkers = [];
 
-const walkers = 500;
+const walkers = 1000;
 
 function setup() {
     createCanvas(400, 400);
@@ -48,9 +61,11 @@ function setup() {
 
     ellipseMode(RADIUS);
 
+    colorMode(HSB);
+
     attachedWalkers[0] = new Walker(width / 2, height / 2);
     attachedWalkers[0].attached = true;
-    attachedWalkers[0].color = [255, 0, 0];
+    attachedWalkers[0].color = [360, 100, 100];
 
     while (freeWalkers.length < walkers) {
         freeWalkers.push(new Walker(random(0, width), random(0, height)));
@@ -58,31 +73,28 @@ function setup() {
 }
 
 function draw() {
-    background(220);
-    let newAttachedWalkers = [];
-    let stillFreeWalkers = [];
+    background(0, 0, 86);
     for (let i = 0; i < walkers; ++i) {
         freeWalkers[i].move();
+        freeWalkers[i].boundary();
         freeWalkers[i].show();
         for (let j = 0; j < attachedWalkers.length; ++j) {
             if (freeWalkers[i].collide(attachedWalkers[j])) {
-                newAttachedWalkers.push(freeWalkers[i]);
                 break;
             }
         }
-        stillFreeWalkers.push(freeWalkers[i]);
+    }
+    let newAttachedWalkers = freeWalkers.filter((b) => b.attached);
+    for (let i = 0; i < newAttachedWalkers.length; ++i) {
+        attachedWalkers.push(newAttachedWalkers[i]);
+        for (let j = 0; j < attachedWalkers.length; ++j) {
+            attachedWalkers[j].r += 0.5 / attachedWalkers.length;
+        }
     }
     for (let i = 0; i < attachedWalkers.length; ++i) {
         attachedWalkers[i].show();
     }
-    for (let i = 0; i < newAttachedWalkers.length; ++i) {
-        for (let j = 0; j < attachedWalkers.length; ++j) {
-            attachedWalkers[j].r += 0.01;
-        }
-    }
-    for (let i = 0; i < newAttachedWalkers.length; ++i) {
-        attachedWalkers.push(newAttachedWalkers[i]);
-    }
+    let stillFreeWalkers = freeWalkers.filter((b) => !b.attached);
     for (let i = 0; i < walkers; ++i) {
         freeWalkers[i] = stillFreeWalkers[i] ? stillFreeWalkers[i] : new Walker(random(0, width), random(0, height));
     }
