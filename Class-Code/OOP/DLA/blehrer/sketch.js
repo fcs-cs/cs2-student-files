@@ -24,8 +24,10 @@ class Walker {
         if (walker.attached == false || this.attached) return false;
         if (dist(this.x, this.y, walker.x, walker.y) < this.r + walker.r) {
             this.attached = true;
-            let hue = map(dist(this.x, this.y, width / 2, height / 2), 0, sqrt(pow(width / 2, 2) + pow(height / 2, 2)), 0, 360);
+            let hue = map(dist(this.x, this.y, width / 2, height / 2), 0, dist(width / 2, height / 2, 0, 0), 0, 360);
             this.color = [hue, 100, 100];
+            let distance = dist(this.x, this.y, width / 2, height / 2);
+            if(distance > farthestAttached) farthestAttached = distance;
             return true;
         }
         return false;
@@ -52,7 +54,9 @@ let attachedWalkers = [];
 
 let freeWalkers = [];
 
-const walkers = 500;
+const walkers = 2000;
+
+let farthestAttached = 0;
 
 function setup() {
     createCanvas(400, 400);
@@ -77,6 +81,7 @@ function draw() {
     for (let i = 0; i < walkers; ++i) {
         freeWalkers[i].move();
         freeWalkers[i].boundary();
+        if(dist(freeWalkers[i].x, freeWalkers[i].y, width / 2, height / 2) > farthestAttached + 10) continue;
         freeWalkers[i].show();
         for (let j = 0; j < attachedWalkers.length; ++j) {
             if (freeWalkers[i].collide(attachedWalkers[j])) {
