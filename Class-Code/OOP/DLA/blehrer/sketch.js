@@ -54,7 +54,7 @@ let attachedWalkers = [];
 
 let freeWalkers = [];
 
-const walkers = 2000;
+const walkers = 3000;
 
 let farthestAttached = 0;
 
@@ -81,7 +81,7 @@ function draw() {
     for (let i = 0; i < walkers; ++i) {
         freeWalkers[i].move();
         freeWalkers[i].boundary();
-        if(dist(freeWalkers[i].x, freeWalkers[i].y, width / 2, height / 2) > farthestAttached + 10) continue;
+        if(dist(freeWalkers[i].x, freeWalkers[i].y, width / 2, height / 2) > farthestAttached + 5) continue;
         freeWalkers[i].show();
         for (let j = 0; j < attachedWalkers.length; ++j) {
             if (freeWalkers[i].collide(attachedWalkers[j])) {
