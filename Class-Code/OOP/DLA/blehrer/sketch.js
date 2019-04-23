@@ -20,14 +20,14 @@ class Walker {
         this.y += this.speed * sin(this.angle);
         this.angle += random(-PI / 6, PI / 6);
     }
-    collide(walker) {
+    collide(walker, quadNum) {
         if (walker.attached == false || this.attached) return false;
         if (dist(this.x, this.y, walker.x, walker.y) < this.r + walker.r) {
             this.attached = true;
             let hue = map(dist(this.x, this.y, width / 2, height / 2), 0, dist(width / 2, height / 2, 0, 0), 0, 360);
             this.color = [hue, 100, 100];
             let distance = dist(this.x, this.y, width / 2, height / 2);
-            if(distance > farthestAttached) farthestAttached = distance;
+            if (distance > farthestAttached[quadNum]) farthestAttached[quadNum] = distance;
             return true;
         }
         return false;
@@ -56,7 +56,7 @@ let freeWalkers = [];
 
 const walkers = 3000;
 
-let farthestAttached = 0;
+let farthestAttached = [0, 0, 0, 0];
 
 function setup() {
     createCanvas(400, 400);
@@ -78,29 +78,77 @@ function setup() {
 
 function draw() {
     background(0, 0, 86);
+    let freeQuad = [];
+    for (let i = 0; i < 4; ++i) {
+        freeQuad[i] = [];
+    }
     for (let i = 0; i < walkers; ++i) {
         freeWalkers[i].move();
         freeWalkers[i].boundary();
-        if(dist(freeWalkers[i].x, freeWalkers[i].y, width / 2, height / 2) > farthestAttached + 5) continue;
-        freeWalkers[i].show();
-        for (let j = 0; j < attachedWalkers.length; ++j) {
-            if (freeWalkers[i].collide(attachedWalkers[j])) {
-                break;
+        if (freeWalkers[i].x > width / 2 && freeWalkers[i].y < height / 2) {
+            freeQuad[0].push(freeWalkers[i]);
+            continue;
+        }
+        if (freeWalkers[i].x < width / 2 && freeWalkers[i].y < height / 2) {
+            freeQuad[1].push(freeWalkers[i]);
+            continue;
+        }
+        if (freeWalkers[i].x < width / 2 && freeWalkers[i].y > height / 2) {
+            freeQuad[2].push(freeWalkers[i]);
+            continue;
+        }
+        if (freeWalkers[i].x > width / 2 && freeWalkers[i].y > height / 2) {
+            freeQuad[3].push(freeWalkers[i]);
+        }
+    }
+
+
+    let attachedQuad = [];
+    for (let i = 0; i < 4; ++i) {
+        attachedQuad[i] = [];
+    }
+    for (let i = 0; i < attachedWalkers.length; ++i) {
+        if (attachedWalkers[i].x > -2 + width / 2 && attachedWalkers[i].y < 2 + height / 2) {
+            attachedQuad[0].push(attachedWalkers[i]);
+        }
+        if (attachedWalkers[i].x < 2 + width / 2 && attachedWalkers[i].y < 2 + height / 2) {
+            attachedQuad[1].push(attachedWalkers[i]);
+        }
+        if (attachedWalkers[i].x < 2 + width / 2 && attachedWalkers[i].y > -2 + height / 2) {
+            attachedQuad[2].push(attachedWalkers[i]);
+        }
+        if (attachedWalkers[i].x > -2 + width / 2 && attachedWalkers[i].y > -2 + height / 2) {
+            attachedQuad[3].push(attachedWalkers[i]);
+        }
+    }
+    let newAttachedWalkers = [];
+    for (let quadNum = 0; quadNum < 4; ++quadNum) {
+        for (let i = 0; i < freeQuad[quadNum].length; ++i) {
+            if (dist(freeQuad[quadNum][i].x, freeQuad[quadNum][i].y, width / 2, height / 2) - 10 > farthestAttached[quadNum]) continue;
+            freeQuad[quadNum][i].show();
+            for (let j = 0; j < attachedQuad[quadNum].length; ++j) {
+                if (freeQuad[quadNum][i].collide(attachedQuad[quadNum][j], quadNum)) {
+                    newAttachedWalkers.push(freeQuad[quadNum][i]);
+                    break;
+                }
             }
         }
     }
-    let newAttachedWalkers = freeWalkers.filter((b) => b.attached);
     for (let i = 0; i < newAttachedWalkers.length; ++i) {
         attachedWalkers.push(newAttachedWalkers[i]);
-        // for (let j = 0; j < attachedWalkers.length; ++j) {
-        //     attachedWalkers[j].r += 0.5 / attachedWalkers.length;
-        // }
     }
     for (let i = 0; i < attachedWalkers.length; ++i) {
         attachedWalkers[i].show();
     }
-    let stillFreeWalkers = freeWalkers.filter((b) => !b.attached);
-    for (let i = 0; i < walkers; ++i) {
-        freeWalkers[i] = stillFreeWalkers[i] ? stillFreeWalkers[i] : new Walker(random(0, width), random(0, height));
+    for (let quadNum = 0; quadNum < 4; ++quadNum) {
+        for (let i = 0; i < freeQuad[quadNum].length; ++i) {
+            freeWalkers[i] = !freeQuad[quadNum][i].attached ? freeQuad[quadNum][i] : new Walker(random(0, width), random(0, height));
+        }
     }
+    push();
+    strokeWeight(1);
+    stroke(0);
+    line(width / 2, 0, width / 2, height);
+    line(0, height / 2, width, height / 2);
+    pop();
 }
