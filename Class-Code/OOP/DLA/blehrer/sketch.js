@@ -13,7 +13,7 @@ class Walker {
         this.color = 0;
         this.attached = false;
     }
-    move() {
+    move() { //move at angle at random speed relative to previous angle
         if (this.attached) return;
         this.speed = random(0, 3);
         this.x += this.speed * cos(this.angle);
@@ -32,7 +32,7 @@ class Walker {
         }
         return false;
     }
-    boundary() {
+    boundary() { // don't let walker leave screen
         if (this.x < 0) {
             this.x = 0;
         } else if (this.x > width) {
@@ -67,6 +67,7 @@ function setup() {
 
     colorMode(HSB);
 
+    // set initial attached walker in center
     attachedWalkers[0] = new Walker(width / 2, height / 2);
     attachedWalkers[0].attached = true;
     attachedWalkers[0].color = [360, 100, 100];
@@ -78,8 +79,9 @@ function setup() {
 
 function draw() {
     background(0, 0, 86);
-    let freeQuad = [];
 
+    //split free walkers into arrays for each quad
+    let freeQuad = [];
     for (let reps = 0; reps < 1; ++reps) {
         for (let i = 0; i < 4; ++i) {
             freeQuad[i] = [];
@@ -104,6 +106,7 @@ function draw() {
             }
         }
 
+        //split attached walkers into new array for each quad
         let attachedQuad = [];
         for (let i = 0; i < 4; ++i) {
             attachedQuad[i] = [];
@@ -124,6 +127,7 @@ function draw() {
             }
         }
 
+        // if walkers are within range check if they collide with attached
         let newAttachedWalkers = [];
         for (let quadNum = 0; quadNum < 4; ++quadNum) {
             for (let i = 0; i < freeQuad[quadNum].length; ++i) {
@@ -137,9 +141,13 @@ function draw() {
                 }
             }
         }
+
+        //add the newly collided walkers to attached walkers
         for (let i = 0; i < newAttachedWalkers.length; ++i) {
             attachedWalkers.push(newAttachedWalkers[i]);
         }
+
+        // save walkers that are still free and refill free walker array
         let index = 0;
         for (let quadNum = 0; quadNum < 4; ++quadNum) {
             for (let i = 0; i < freeQuad[quadNum].length; ++i) {
@@ -148,6 +156,8 @@ function draw() {
             }
         }
     }
+
+    // draw quad grid
     push();
     strokeWeight(1);
     stroke(0);
@@ -155,9 +165,12 @@ function draw() {
     line(0, height / 2, width, height / 2);
     pop();
 
+    //show attached walkers
     for (let i = 0; i < attachedWalkers.length; ++i) {
         attachedWalkers[i].show();
     }
+
+    //if free walkers are in range show them
     for (let quadNum = 0; quadNum < 4; ++quadNum) {
         for (let i = 0; i < freeQuad[quadNum].length; ++i) {
             if (dist(freeQuad[quadNum][i].x, freeQuad[quadNum][i].y, width / 2, height / 2) - 10 > farthestAttached[quadNum]) continue;
