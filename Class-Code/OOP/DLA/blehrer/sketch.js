@@ -1,8 +1,8 @@
-//Your Name(s)
-//Project Name
-//Date
+// Ben Lehrer
+// DLA
+// April 24, 2019
 
-/* A brief description of what the program is */
+/* A DLA program that divides into quads to run faster */
 
 class Walker {
     constructor(_x, _y) {
@@ -20,7 +20,7 @@ class Walker {
         this.y += this.speed * sin(this.angle);
         this.angle += random(-PI / 6, PI / 6);
     }
-    collide(walker, quadNum) {
+    collide(walker, quadNum) { //check collision with attached if walker within range
         if (walker.attached == false || this.attached) return false;
         if (dist(this.x, this.y, walker.x, walker.y) < this.r + walker.r) {
             this.attached = true;
