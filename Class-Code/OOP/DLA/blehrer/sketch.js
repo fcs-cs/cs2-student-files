@@ -67,6 +67,11 @@ function setup() {
 
     colorMode(HSB);
 
+    //  stop when fills canvas
+    for(let i = 0; i < 4; ++i){
+        if(farthestAttached[i] > width / 2 || farthestAttached[i] > height / 2) noLoop();
+    }
+
     // set initial attached walker in center
     attachedWalkers[0] = new Walker(width / 2, height / 2);
     attachedWalkers[0].attached = true;
